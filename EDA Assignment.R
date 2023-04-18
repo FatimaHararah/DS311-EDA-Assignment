@@ -1,0 +1,254 @@
+install.packages("tidyverse")
+library(tidyverse)
+install.packages("ggplot2")
+library(ggplot2) 
+list.files()
+setwd("~/Downloads")
+ames_data <- read.csv("ames.csv")
+install.packages("readr")
+library(readr)
+df <- read_csv("ames.csv")
+
+stopifnot(is.data.frame(df))
+
+stopifnot(nrow(df) == 1460)
+
+stopifnot(ncol(df) == 80)
+df
+str(df)
+plot_histogram <- function(df, column, title, xlabel, ylabel) {
+  
+  data <- df[[column]]
+  mean <- mean(data)
+ 
+  ggplot(df, aes(x = data)) +
+    geom_histogram(bins = "auto", fill = "cornflowerblue", color = "white") +
+    geom_vline(xintercept = mean, color = "black", linetype = "dashed", linewidth = 1) +
+    labs(title = title, x = xlabel, y = ylabel)
+}
+
+
+plot_histogram(
+  df,
+  "SalePrice",
+  "Distribution of Sale Prices",
+  "Sale Price",
+  "Number of Houses"
+)
+plot_histogram <- function(df, column, title, xlabel, ylabel) {
+ 
+  data <- df[[column]]
+  mean <- mean(data)
+ 
+  ggplot(df, aes(x = data)) +
+    geom_histogram(binwidth = diff(range(cut(data, "fd")))/20, fill = "cornflowerblue", color = "white") +
+    geom_vline(xintercept = mean, color = "black", linetype = "dashed", linewidth = 1) +
+    labs(title = title, x = xlabel, y = ylabel)
+}
+
+plot_histogram(
+  df,
+  "SalePrice",
+  "Distribution of Sale Prices",
+  "Sale Price",
+  "Number of Houses"
+)
+
+
+x <- c(1, 2, 3, 4, 5)
+
+
+my_hist <- function(data, breaks) {
+ 
+  data <- as.numeric(data)
+
+  if (!is.numeric(breaks)) {
+    breaks <- NULL
+  }
+ 
+  hist(data, breaks = breaks)
+}
+
+
+my_hist(x, breaks = 5)
+
+
+my_hist(x, breaks = "auto")
+print_stats <- function(df, column) {
+  cat("Mean:              ", mean(df[[column]], na.rm = TRUE), "\n")
+  cat("Median:            ", median(df[[column]], na.rm = TRUE), "\n")
+  cat("Standard Deviation:", sd(df[[column]], na.rm = TRUE), "\n")
+}
+
+print_stats(df, "SalePrice")
+
+
+plot_histogram <- function(df, column, title, xlabel, ylabel) {
+  
+  data <- df[[column]]
+  mean <- mean(data, na.rm = TRUE)
+
+  hist(data, breaks = "FD", col = "blue", main = title, xlab = xlabel, ylab = ylabel)
+
+  abline(v = mean, col = "red", lwd = 2, lty = "dashed")
+}
+
+plot_histogram(df, "TotRmsAbvGrd", "Distribution of Total Rooms Above Grade",
+               "Total Rooms (Does Not Include Bathrooms)", "Number of Houses")
+print_stats <- function(df, column) {
+  cat("Mean:              ", mean(df[[column]], na.rm = TRUE), "\n")
+  cat("Median:            ", median(df[[column]], na.rm = TRUE), "\n")
+  cat("Standard Deviation:", sd(df[[column]], na.rm = TRUE), "\n")
+}
+
+print_stats(df, "TotRmsAbvGrd")
+
+
+
+
+plot_histogram <- function(df, column, title, xlabel, ylabel) {
+ 
+  data <- df[[column]]
+  mean <- mean(data, na.rm = TRUE)
+ 
+  hist(data, breaks = "Sturges", col = "green", main = title, xlab = xlabel, ylab = ylabel)
+ 
+  abline(v = mean, col = "red", lwd = 2, lty = "dashed")
+}
+
+plot_histogram(df, "OverallCond", "Distribution of Overall Condition of Houses on a 1-10 Scale",
+               "Condition of House", "Number of Houses")
+
+
+
+
+print_stats <- function(df, column) {
+  cat("Mean:              ", mean(df[[column]], na.rm = TRUE), "\n")
+  cat("Median:            ", median(df[[column]], na.rm = TRUE), "\n")
+  cat("Standard Deviation:", sd(df[[column]], na.rm = TRUE), "\n")
+}
+
+print_stats(df, "OverallCond")
+
+
+
+
+
+below_average_condition <- subset(df, OverallCond < 5)
+average_condition <- subset(df, OverallCond == 5)
+above_average_condition <- subset(df, OverallCond > 5)
+
+
+
+
+
+
+bins <- seq(min(df$SalePrice), max(df$SalePrice), by = median(df$SalePrice) / 20)
+
+
+ggplot(df, aes(x = SalePrice, fill = factor(OverallCond))) +
+  geom_histogram(bins = bins, alpha = 0.5, position = "identity") +
+  scale_fill_manual(values = c("cyan", "gray", "yellow"),
+                    labels = c("above average condition", "average condition", "below average condition")) +
+  labs(title = "Distributions of Sale Price Grouped by Condition",
+       x = "Sale Price",
+       y = "Number of Houses")
+
+
+
+bins <- seq(min(df$SalePrice), max(df$SalePrice), by = round(median(df$SalePrice) / 20))
+
+
+ggplot(df, aes(x = SalePrice, fill = factor(OverallCond))) +
+  geom_histogram(bins = bins, alpha = 0.5, position = "identity") +
+  scale_fill_manual(values = c("cyan", "gray", "yellow"),
+                    labels = c("above average condition", "average condition", "below average condition")) +
+  labs(title = "Distributions of Sale Price Grouped by Condition",
+       x = "Sale Price",
+       y = "Number of Houses")
+
+
+
+
+library(dplyr)
+
+numeric_df <- select_if(df, is.numeric) %>% select(-SalePrice)
+
+
+correlations <- cor(df$SalePrice, numeric_df)
+
+
+max_corr_column <- colnames(numeric_df)[which.max(correlations)]
+
+
+max_corr_value <- max(correlations)
+
+cat("Most Positively Correlated Column: ", max_corr_column, "\n")
+cat("Maximum Correlation Value: ", max_corr_value, "\n")
+
+
+
+
+print("NumPy way")
+
+correlations <- cor(df[, sapply(df, is.numeric)], df$SalePrice)
+
+
+min_corr_value <- min(correlations)
+min_corr_column <- names(which(correlations == min_corr_value))
+
+cat("Most Negatively Correlated Column:", min_corr_column, "\n")
+cat("Minimum Correlation Value:", min_corr_value, "\n")
+
+
+print ("\npandas way")
+
+
+correlation_series <- cor(df[, sapply(df, is.numeric)], df$SalePrice)
+
+min_corr_value <- min(correlation_series)
+min_corr_column <- names(which(correlation_series == min_corr_value))
+
+cat("Most Negatively Correlated Column:", min_corr_column, "\n")
+cat("Minimum Correlation Value:", min_corr_value, "\n")
+
+
+
+
+library(ggplot2)
+
+ggplot(data = df, aes(x = .data[[max_corr_column]], y = SalePrice)) + 
+  geom_boxplot() + 
+  labs(title = "Overall Quality vs. Sale Price",
+       x = "Overall Quality",
+       y = "Sale Price")
+
+
+ggplot(data = df, aes(x = .data[[min_corr_column]], y = SalePrice)) + 
+  geom_boxplot() + 
+  labs(title = "Number of Kitchens vs. Sale Price",
+       x = "Number of Kitchens Above Ground",
+       y = "Sale Price")
+
+
+table(df$YrSold) %>% sort()
+
+
+df$Age <- df$YrSold - df$YearBuilt
+
+
+
+
+install.packages("gridExtra")
+
+
+library(ggplot2)
+library(gridExtra)
+grid.arrange(p1, ncol=1)
+e
+p1 <- ggplot(df, aes(x=Age, y=SalePrice)) + 
+  geom_point(alpha=0.3, color="green") +
+  labs(title="Home Age vs. Sale Price", x="Age of Home at Time of Sale", y="Sale Price")
+
+grid.arrange(p1, ncol=1)
+
